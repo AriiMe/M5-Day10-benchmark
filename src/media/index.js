@@ -4,6 +4,7 @@ const express = require("express");
 const uniqid = require("uniqid");
 const multer = require("multer");
 const upload = multer({});
+const axios = require("axios");
 const { readMedia, writeMedia } = require("../utilities/utilities");
 const { writeFile, writeJson } = require("fs-extra");
 const { join, extname } = require("path");
@@ -32,8 +33,11 @@ mediaRouter.get("/:mediaID", async (req, res, next) => {
         if (singleMedia) {
             res.send(singleMedia);
         } else {
-            console.log(error);
-            next(error);
+            await axios
+                .get(
+                    `http://www.omdbapi.com/?apikey=${process.env.OMDB_API_KEY}&i=${req.params.mediaID}`
+                )
+                .then((response) => res.send(response.data));
         }
     } catch (error) {
         console.log(error);
