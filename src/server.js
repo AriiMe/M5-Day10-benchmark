@@ -30,7 +30,7 @@ const corsOptions = {
         }
     }
 }
-server.use(cors());
+server.use(cors(corsOptions));
 server.use(express.json());
 
 server.use("/images", express.static(join(__dirname, "../images")));
