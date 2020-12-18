@@ -26,3 +26,24 @@ reviewsRouter.get("/:id", async (req, res) => {
         const err = new Error("problem with filtered get")
     }
 })
+reviewsRouter.post("/:id", async (req, res) => {
+    try {
+        let reviews = await readDB(reviewsJsonPath)
+        let newReview = {
+            _id: uniqid(),
+            elementId: req.params.id,
+            ...req.body,
+            createdAt: new Date() + new Date().getHours(),
+        }
+
+        reviews.push(newReview)
+        await writeDB(reviewsJsonPath, reviews)
+        res.send("movie posted")
+
+    } catch (error) {
+        const err = new Error("error while posting")
+    }
+})
+reviewsRouter.put("/:id", async (req, res) =>{
+    let reviews = await read
+})
