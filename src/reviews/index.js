@@ -44,6 +44,23 @@ reviewsRouter.post("/:id", async (req, res) => {
         const err = new Error("error while posting")
     }
 })
-reviewsRouter.put("/:id", async (req, res) =>{
-    let reviews = await read
+reviewsRouter.put("/:id", async (req, res) => {
+    let reviews = await readDB(reviewsJsonPath);
+    let index = reviews.findIndex((review) => review._id === req.params.id);
+    console.log(index);
+    let filteredArray = reviews.filter((review) => review._id !== req.params.id);
+    let replacement = {
+        _id: req.params.id,
+        ...req.body,
+    };
+    filteredArray.splice(index, 0, replacement);
+    await writeDB(reviewsJsonPath, filteredArray);
+    res.send("ok");
+});
+reviewsRouter.delete("/:id", async (req, res) => {
+    let reviews = await readDB(reviewsJsonPath);
+    let filteredArray = reviews.filter((review) => review._id !== req.params.id);
+    await writeDB(reviewsJsonPath, filteredArray);
+    res.send("deleted");
 })
+module.exports = reviewsRouter
