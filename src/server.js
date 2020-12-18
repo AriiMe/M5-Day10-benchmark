@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const { join } = require("path");
 const {
     notFoundHandler,
     unauthorizedHandler,
@@ -11,10 +12,12 @@ const {
 const mediaRouter = require("./media");
 
 const server = express();
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 3003;
 
 server.use(cors());
 server.use(express.json());
+
+server.use("/images", express.static(join(__dirname, "../images")));
 
 server.use("/media", mediaRouter);
 
