@@ -1,8 +1,16 @@
+/** @format */
+
 const express = require("express");
-
+const uniqid = require("uniqid");
+const multer = require("multer");
+const upload = multer({});
 const { readMedia, writeMedia } = require("../utilities/utilities");
-
+const { writeFile, writeJson } = require("fs-extra");
+const { join, extname } = require("path");
 const mediaRouter = express.Router();
+
+
+const mediaImagesPath = join(__dirname, "../../images");
 
 mediaRouter.get("/", async (req, res, next) => {
     try {
@@ -86,5 +94,38 @@ mediaRouter.delete("/:mediaID", async (req, res, next) => {
         next(error);
     }
 });
+
+
+//image upload
+mediaRouter.post("/:mediaID/upload", upload.single("mediaPoster"),
+    async (req, res, next) => {
+        try {
+            const mediaDB = await readMedia();
+            const singleMediaIndex = mediaDB.findIndex(
+                (media) => media.imdbID === req.params.mediaID
+            );
+            if (singleMediaIndex !== -1) {
+                const imageName = req.params.mediaID + extname(req.file.originalname);
+                try {
+                    await writeFile(join(mediaImagesPath, imageName), req.file.buffer);
+                    mediaDB[singleMediaIndex].Poster =
+                        "http://localhost:3001/images/" + imageName;
+                    await writeMedia(mediaDB);
+                    res.send("Poster Added!");
+                } catch (error) {
+                    console.log(error);
+                    next(error);
+                }
+            } else {
+                const err = new Error();
+                err.httpStatusCode = 404;
+                next(err);
+            }
+        } catch (error) {
+            console.log(error);
+            next(err);
+        }
+    }
+);
 
 module.exports = mediaRouter;
